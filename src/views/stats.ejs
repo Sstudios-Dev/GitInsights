@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= repo.full_name %></title>
+  <meta content="<%= repo.description %>" name="description">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+    .gradient-text {
+      background: linear-gradient(to right, #3b82f6, #2563eb, #4f46e5, #6d28d9, #7e22ce, #9333ea, #a855f7, #c026d3, #d946ef, #db2777, #ec4899, #f43f5e, #f87171, #fb7185, #fb923c, #f59e0b, #eab308, #ca8a04);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      background-size: 300% 300%;
+      animation: gradient-animation 10s linear infinite;
+    }
+
+    @keyframes gradient-animation {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white font-sans h-full">
+  <div class="flex justify-center items-center h-full">
+    <div class="max-w-md w-full p-4">
+      <h1 class="text-3xl font-bold mb-4 text-center gradient-text">Repository Statistics</h1>
+      <div class="bg-gray-800 p-4 rounded-lg shadow-md space-y-2">
+        <p><span class="font-semibold">Repository Name:</span> <%= repo.full_name %></p>
+        <p><span class="font-semibold">Description:</span> <%= repo.description %></p>
+        <p><span class="font-semibold">Stars:</span> <%= repo.stargazers_count %></p>
+        <p><span class="font-semibold">Forks:</span> <%= repo.forks_count %></p>
+        <p><span class="font-semibold">Language:</span> <%= repo.language %></p>
+        <p><span class="font-semibold">Repository URL:</span> <a href="<%= url %>" class="text-blue-400 hover:underline"><%= url %></a></p>
+        <p class="text-sm text-gray-500 mt-2">Note: This page is updated when the GitHub API refreshes its values. We cannot control the update frequency.</p>
+      </div>
+      <div class="mt-4">
+        <a href="/" class="block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold">Back to Home</a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

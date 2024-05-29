@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - 500</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+    .gradient-text {
+  background: linear-gradient(to right, #3b82f6, #2563eb, #4f46e5, #6d28d9, #7e22ce, #9333ea, #a855f7, #c026d3, #d946ef, #db2777, #ec4899, #f43f5e, #f87171, #fb7185, #fb923c, #f59e0b, #eab308, #ca8a04);
+  -webkit-background-clip: text;
+  color: transparent;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  background-size: 300% 300%;
+  animation: gradient-animation 10s linear infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+    </style>
+</head>
+<body class="flex items-center justify-center bg-gray-900">
+    <div class="max-w-md w-full bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle text-red-500 text-4xl mx-auto"></i>
+            <h1 class="text-xl font-semibold mt-4 gradient-text">Error 500</h1>
+            <p class="text-white mt-2">Error getting data from the repository</p>
+            <a href="/" class="text-blue-500 mt-4 block">Go back to home</a>
+        </div>
+    </div>
+</body>
+</html>

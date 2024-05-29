@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Repository</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+    .gradient-text {
+  background: linear-gradient(to right, #3b82f6, #2563eb, #4f46e5, #6d28d9, #7e22ce, #9333ea, #a855f7, #c026d3, #d946ef, #db2777, #ec4899, #f43f5e, #f87171, #fb7185, #fb923c, #f59e0b, #eab308, #ca8a04);
+  -webkit-background-clip: text;
+  color: transparent;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  background-size: 300% 300%;
+  animation: gradient-animation 10s linear infinite;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+  </style>
+</head>
+
+<body class="bg-gray-900 text-white font-sans h-full">
+  <div class="flex flex-col justify-center items-center h-full">
+    <div class="max-w-md w-full p-8 bg-gray-800 rounded-lg shadow-lg">
+      <h1 class="text-3xl font-bold mb-4 text-center gradient-text">Search Repository</h1>
+      <p class="mb-4 text-center">To generate statistics about a GitHub repository, please provide the repository name you're interested in using the format <strong>username/repository</strong> and click the "Generate Statistics" button.</p>
+      <form id="repo-form" class="space-y-4">
+        <div>
+          <label for="repo" class="block text-sm font-medium">Repository Name:</label>
+          <input type="text" id="repo" name="repo" required placeholder="Example: openai/whisper" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500">
+        </div>
+        <button type="button" id="generate-btn" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded focus:outline-none focus:bg-blue-700">Generate Statistics</button>
+      </form>
+      <div id="search-instructions" class="mt-4">
+        <h2 class="text-xl font-semibold mb-2">How to search for a repository on GitHub?</h2>
+        <p class="mb-1">1. Visit the GitHub website at <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-blue-400">github.com</a>.</p>
+        <p class="mb-1">2. In the search bar at the top of the page, enter the repository name in the format <strong>username/repository</strong>.</p>
+        <p class="mb-1">3. Press Enter or click the search button.</p>
+        <p class="mb-1">4. Explore the search results and find the repository you're interested in.</p>
+      </div>
+      <div id="api-counter" class="mt-4">
+        <h2 class="text-xl font-semibold mb-2">Official Api</h2>
+        <p class="mb-1">Well, what our api does is to get the number of repositories registered in our database and displays the number of repositories through .json.</p>
+        <br>
+        <div id="repo-count-container" class="bg-blue-500 text-white p-4 rounded-lg shadow-lg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    fetch('/api/repositories/count')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('repo-count-container').innerText = `Number of registered repositories: ${data.count}`;
+    })
+    .catch(error => console.error('Error:', error));
+    
+    document.getElementById('generate-btn').addEventListener('click', function() {
+      const repo = document.getElementById('repo').value;
+      if (repo) {
+        fetch('/generate-url')
+          .then(response => response.json())
+          .then(data => {
+            const randomUrl = `/stats/${data.randomString}?repo=${repo}`;
+            window.location.href = randomUrl;
+          })
+          .catch(error => console.error('Error:', error));
+      } else {
+        swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please provide a repository name.',
+        })
+      }
+    });
+  </script>
+</body>
+
+</html>
