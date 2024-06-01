@@ -4,6 +4,8 @@ const path = require('path');
 const NodeCache = require('node-cache');
 const colors = require('colors');
 const db = require('./src/extension/db');
+const QuickChart = require('quickchart-js'); // Importar QuickChart correctamente
+const fs = require('fs');
 
 const app = express();
 const PORT = 8080;
@@ -12,6 +14,8 @@ const cache = new NodeCache({ stdTTL: 600 }); // Cache data for 10 minutes
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src', 'views'));
 app.use(express.static(path.join(__dirname, 'src', 'public')));
+app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
 
 function generateRandomString(length = 6) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -44,14 +48,19 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/generate-url', (req, res) => {
+app.post('/generate-url', (req, res) => {
+  const { repo } = req.body;
+  if (!repo) {
+    return res.status(400).json({ error: 'Repository name is required' });
+  }
   const randomString = generateRandomString();
+  cache.set(randomString, repo); // Cache the repository name with the random string as the key
   res.json({ randomString });
 });
 
 app.get('/stats/:randomString', async (req, res) => {
   const randomString = req.params.randomString;
-  const repo = req.query.repo;
+  const repo = cache.get(randomString);
   if (!repo) {
     return res.status(400).render('error-400');
   }
@@ -89,17 +98,89 @@ app.get('/stats/:randomString', async (req, res) => {
     }
   }
 
-  res.render('stats', { repo: data, url: `https://github.com/${repo}` });
+  const chartImagePath = await generateChart(data);
+  res.render('stats', { repo: data, url: `https://github.com/${repo}`, chartImagePath });
 });
+
+async function generateChart(data) {
+  try {
+    // Set chart configuration
+    const chartConfig = {
+      type: 'bar',
+      data: {
+        labels: ['Stars', 'Forks', 'Watchers'],
+        datasets: [{
+          label: 'Repository Statistics',
+          data: [data.stargazers_count, data.forks_count, data.watchers_count],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(153, 102, 255, 0.7)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              fontColor: 'rgba(0, 0, 0, 0.7)'
+            },
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              fontColor: 'rgba(0, 0, 0, 0.7)'
+            },
+            gridLines: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          }]
+        },
+        legend: {
+          labels: {
+            fontColor: 'rgba(0, 0, 0, 0.7)'
+          }
+        }
+      }
+    };
+
+    // Fetch chart image
+    const chartImageUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chartConfig))}`;
+
+    // Fetch image data
+    const response = await axios.get(chartImageUrl, { responseType: 'arraybuffer' });
+    const imageBuffer = Buffer.from(response.data, 'binary');
+
+    // Define chart image path
+    const chartImagePath = path.join(__dirname, 'src', 'public', 'charts', `${data.full_name.replace('/', '-')}.png`);
+
+    // Write image data to file
+    fs.writeFileSync(chartImagePath, imageBuffer);
+
+    return `/charts/${data.full_name.replace('/', '-')}.png`;
+  } catch (error) {
+    console.error('Error generating chart:', error);
+    throw error;
+  }
+}
 
 // information this is not relevant
 
 const repository = 'https://github.com/Sstudios-Dev/GitInsights';
-const libraries = ['Node.js', 'Express', 'Axios', 'SQLite3', 'Node Cache', 'file system operations'];
+const libraries = ['Node.js', 'Express', 'Axios', 'SQLite3', 'Node Cache', 'QuickChart'];
 
 app.listen(PORT, () => {
   console.log('Server is running.'.green);
   console.log(`You can access the application at http://localhost:${PORT}`.blue);
   console.log(`Repository: ${repository}`.magenta);
   console.log(`Libraries used: ${libraries.join(', ')}`.yellow);
-}); 
+});

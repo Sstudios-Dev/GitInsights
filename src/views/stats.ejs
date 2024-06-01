@@ -30,6 +30,53 @@
         background-position: 0% 50%;
       }
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      margin: 10% auto;
+      padding: 20px;
+      background-color: #fefefe;
+      border: 1px solid #888;
+      width: 80%;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .modal img {
+      width: 100%;
+      height: auto;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+
+    .modal-options {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
   </style>
 </head>
 
@@ -44,6 +91,23 @@
         <p><span class="font-semibold">Forks:</span> <%= repo.forks_count %></p>
         <p><span class="font-semibold">Language:</span> <%= repo.language %></p>
         <p><span class="font-semibold">Repository URL:</span> <a href="<%= url %>" class="text-blue-400 hover:underline"><%= url %></a></p>
+        <!-- Modal Trigger -->
+        <img src="<%= chartImagePath %>" alt="Repository Statistics Chart" class="w-full mt-4 rounded-lg shadow-md animate-fade-in cursor-pointer"
+             onclick="document.getElementById('modal').style.display='block'">
+        <!-- The Modal -->
+        <div id="modal" class="modal">
+          <!-- Modal Content -->
+          <div class="modal-content">
+            <span class="close" onclick="document.getElementById('modal').style.display='none'">&times;</span>
+            <img src="<%= chartImagePath %>" alt="Repository Statistics Chart">
+            <div class="modal-options">
+              <div class="modal-option block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold" onclick="zoomIn()">Zoom In</div>
+              <div class="modal-option block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold" onclick="zoomOut()">Zoom Out</div>
+              <div class="modal-option block w-full text-center py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold" onclick="copyURL()">Copy URL</div>
+            </div>            
+          </div>
+        </div>
+        <!-- End of Modal -->
         <p class="text-sm text-gray-500 mt-2">Note: This page is updated when the GitHub API refreshes its values. We cannot control the update frequency.</p>
       </div>
       <div class="mt-4">
@@ -51,6 +115,29 @@
       </div>
     </div>
   </div>
+
+  <script>
+    function zoomIn() {
+      var modalImage = document.querySelector('.modal-content img')
+      var currentWidth = modalImage.clientWidth;
+      modalImage.style.width = (currentWidth * 1.2) + 'px';
+    }
+
+    function zoomOut() {
+      var modalImage = document.querySelector('.modal-content img');
+      var currentWidth = modalImage.clientWidth;
+      modalImage.style.width = (currentWidth * 0.8) + 'px';
+    }
+
+    function copyURL() {
+      var modalImageSrc = document.querySelector('.modal-content img').src;
+      navigator.clipboard.writeText(modalImageSrc).then(function() {
+        alert('URL copied to clipboard!');
+      }, function(err) {
+        console.error('Could not copy URL: ', err);
+      });
+    }
+  </script>
 </body>
 
 </html>

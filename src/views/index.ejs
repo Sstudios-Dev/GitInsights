@@ -10,26 +10,28 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
     .gradient-text {
-  background: linear-gradient(to right, #3b82f6, #2563eb, #4f46e5, #6d28d9, #7e22ce, #9333ea, #a855f7, #c026d3, #d946ef, #db2777, #ec4899, #f43f5e, #f87171, #fb7185, #fb923c, #f59e0b, #eab308, #ca8a04);
-  -webkit-background-clip: text;
-  color: transparent;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 700;
-  background-size: 300% 300%;
-  animation: gradient-animation 10s linear infinite;
-}
+      background: linear-gradient(to right, #3b82f6, #2563eb, #4f46e5, #6d28d9, #7e22ce, #9333ea, #a855f7, #c026d3, #d946ef, #db2777, #ec4899, #f43f5e, #f87171, #fb7185, #fb923c, #f59e0b, #eab308, #ca8a04);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      background-size: 300% 300%;
+      animation: gradient-animation 10s linear infinite;
+    }
 
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
+    @keyframes gradient-animation {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
   </style>
 </head>
 
@@ -38,13 +40,13 @@
     <div class="max-w-md w-full p-8 bg-gray-800 rounded-lg shadow-lg">
       <h1 class="text-3xl font-bold mb-4 text-center gradient-text">Search Repository</h1>
       <p class="mb-4 text-center">To generate statistics about a GitHub repository, please provide the repository name you're interested in using the format <strong>username/repository</strong> and click the "Generate Statistics" button.</p>
-      <form id="repo-form" class="space-y-4">
+      <form id="repo-form" class="space-y-4" method="POST" action="/generate-url">
         <div>
           <label for="repo" class="block text-sm font-medium">Repository Name:</label>
           <input type="text" id="repo" name="repo" required placeholder="Example: openai/whisper" class="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-blue-500">
         </div>
-        <button type="button" id="generate-btn" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded focus:outline-none focus:bg-blue-700">Generate Statistics</button>
-      </form>
+        <button type="submit" id="generate-btn" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded focus:outline-none focus:bg-blue-700">Generate Statistics</button>
+      </form>      
       <div id="search-instructions" class="mt-4">
         <h2 class="text-xl font-semibold mb-2">How to search for a repository on GitHub?</h2>
         <p class="mb-1">1. Visit the GitHub website at <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="text-blue-400">github.com</a>.</p>
@@ -64,24 +66,30 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     fetch('/api/repositories/count')
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById('repo-count-container').innerText = `Number of registered repositories: ${data.count}`;
-    })
-    .catch(error => console.error('Error:', error));
-    
-    document.getElementById('generate-btn').addEventListener('click', function() {
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('repo-count-container').innerText = `Number of registered repositories: ${data.count}`;
+      })
+      .catch(error => console.error('Error:', error));
+
+    document.getElementById('generate-btn').addEventListener('click', function () {
       const repo = document.getElementById('repo').value;
       if (repo) {
-        fetch('/generate-url')
+        fetch('/generate-url', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ repo: repo })
+        })
           .then(response => response.json())
           .then(data => {
-            const randomUrl = `/stats/${data.randomString}?repo=${repo}`;
+            const randomUrl = `/stats/${data.randomString}`;
             window.location.href = randomUrl;
           })
           .catch(error => console.error('Error:', error));
       } else {
-        swal.fire({
+        Swal.fire({
           icon: 'error',
           title: 'Oops...',
           text: 'Please provide a repository name.',
